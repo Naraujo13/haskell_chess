@@ -60,7 +60,7 @@ module Board where
 
         -- Gets unicode char for a given piece
         getPieceChar :: Piece -> Char
-        getPieceChar Empty = '\2063'
+        getPieceChar Empty = ' '
         getPieceChar (King True) = '♚'
         getPieceChar (Queen True) = '♛'
         getPieceChar (Rook True) = '♜'
@@ -228,8 +228,20 @@ module Board where
             | otherwise = False
         isCheckMove b (Empty) o d = False
 
+        isKingInCheck :: Board -> Bool -> Int -> Int -> Bool
+        isKingInCheck b c 9 9 = False
+        isKingInCheck b c x 9 = isKingInCheck b c (x+1) 1
+        isKingInCheck b c x y
+            | isCheckMove b (findPiece b ((translateLineBack x),y)) (x,y) (findKing b c 1) = True
+            | otherwise = isKingInCheck b c x (y+1)
 
 
+        isKingInCheckMate :: Board -> Bool -> Bool
+        isKingInCheckMate b c = 
+            let 
+                (x, y) = (findKing b c 1)
+            in (isKingInCheck b c 1 1) && (isKingInCheck (movePiece b ((translateLineBack(x),y), (translateLineBack(x+1), y))) c 1 1)  && (isKingInCheck (movePiece b ((translateLineBack(x),y), (translateLineBack(x+1), y+1))) c 1 1) && (isKingInCheck (movePiece b ((translateLineBack(x),y), (translateLineBack(x), y+1))) c 1 1) && (isKingInCheck (movePiece b ((translateLineBack(x),y), (translateLineBack(x-1), y+1))) c 1 1) && (isKingInCheck (movePiece b ((translateLineBack(x),y), (translateLineBack(x-1), y))) c 1 1) && (isKingInCheck (movePiece b ((translateLineBack(x),y), (translateLineBack(x-1), y-1))) c 1 1) && (isKingInCheck (movePiece b ((translateLineBack(x),y), (translateLineBack(x), y-1))) c 1 1) && (isKingInCheck (movePiece b ((translateLineBack(x),y), (translateLineBack(x+1), y-1))) c 1 1)
+    
     ----------- Search piece
 
         -- Auxiliary to seraching line
@@ -239,6 +251,7 @@ module Board where
 
         -- Finds the piece in a position of a given line
         findPosition :: Line -> Int -> Piece
+        findPosition [] n = Empty
         findPosition (x:xs) 1 = x
         findPosition (x:xs) n = findPosition xs (n-1)
         

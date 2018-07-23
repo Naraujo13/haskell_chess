@@ -121,8 +121,12 @@ module Board where
         swapPiece3 (x:xs) p 1 = p : xs
         swapPiece3 (x:xs) p c = x : (swapPiece3 xs p (c-1))
 
-    --movePiece :: Board -> Move -> Board
-    --movePiece b (o, d) = swapPiece (findPiece b o) d
+
+
+    ----------- Move Piece
+
+        movePiece :: Board -> ((Char, Int), (Char, Int)) -> Board
+        movePiece b m =  swapPiece (swapPiece b (findPiece b (fst m)) (snd m)) (Empty) (fst m)
 
 
     ----------- General

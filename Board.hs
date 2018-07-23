@@ -16,6 +16,15 @@ module Board where
             Pawn Bool 
             deriving(Eq, Show)
 
+        -- Get
+        getPieceColor :: Piece -> Bool
+        getPieceColor (King b) = b
+        getPieceColor (Queen b) = b
+        getPieceColor (Rook b) = b
+        getPieceColor (Knight b) = b
+        getPieceColor (Bishop b) = b
+        getPieceColor (Pawn b) = b
+
         -- Board
         type Line = [Piece]
         type Board = [Line]
@@ -84,6 +93,52 @@ module Board where
         isBishop _ = False
         isPawn (Pawn _) = True
         isPawn _ = False
+
+        -- Validate movement
+        --validateMove :: Piece -> Move -> Bool
+        --validateMove p m = (isValidMove p m)
+
+        ----------- Basic Validation
+
+        -- Wraps basic validations
+        basicValidation :: Board -> Move -> Bool
+        basicValidation b m = (validateCoordinates m) && (checkOrigin b m) && (checkTarget b m)
+
+        -- Check if coordinates are valid
+        validateCoordinates :: Move -> Bool
+        validateCoordinates (o, d) = (validCoord o) && (validCoord d)
+            where
+                validCoord c = ((translateLine(fst(c)) >= 1 && translateLine(fst(c)) <= 8) && (snd(c) >= 1 && snd(c) <= 8))
+            
+        -- Check if there is a piece at origin position
+        checkOrigin :: Board -> Move -> Bool
+        checkOrigin b m = (findPiece b (fst m) /= Empty )
+        
+        -- Check if target position is empty or occupied by oposing player piece
+        checkTarget :: Board -> Move -> Bool
+        checkTarget b m = (findPiece b (snd m) == Empty) || ((getPieceColor (findPiece b (fst m)) /= (getPieceColor (findPiece b (snd m)))))
+
+        -----------------------------
+        
+        ----------- Piece Type Validation
+        
+        -- Check if the move is possible based on the piece movement type
+        isValidMove :: Piece -> (Int, Int) -> (Int, Int) -> Bool
+        isValidMove (King _) o d = 
+            | (fst(d) > fst(o) + 1) = False
+            | (fst(d) < fst(o) - 1) = False
+            | (snd(d) > snd(o) + 1) = False
+            | (snd(d) < snd(o) - 1) = False
+            | otherwise             = True
+
+
+        -----------------------------
+
+
+
+
+
+        -- Check if the move is possible based on check conditions
     
 
 
@@ -142,6 +197,7 @@ module Board where
                 'e' -> 5 
                 'f' -> 6  
                 'g' -> 7
-                'h' -> 8 
+                'h' -> 8
+                _   -> 0 
 
 

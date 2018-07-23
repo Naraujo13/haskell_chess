@@ -123,24 +123,110 @@ module Board where
         ----------- Piece Type Validation
         
         -- Check if the move is possible based on the piece movement type
-        isValidMove :: Piece -> (Int, Int) -> (Int, Int) -> Bool
-        isValidMove (King _) o d = 
+        isValidMove :: Board -> Piece -> (Int, Int) -> (Int, Int) -> Bool
+        isValidMove b (King _) o d  
             | (fst(d) > fst(o) + 1) = False
             | (fst(d) < fst(o) - 1) = False
             | (snd(d) > snd(o) + 1) = False
             | (snd(d) < snd(o) - 1) = False
             | otherwise             = True
-
+        isValidMove b (Rook _) o d
+            | (fst(d) == fst(o)) = True
+            | (snd(d) == snd(o)) = True
+            | otherwise          = False
+        isValidMove b (Bishop _) o d
+            | (fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
+            | (fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
+            | otherwise          = False
+        isValidMove b (Knight _) o d
+            | (fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) - 2)) || (snd(d) == (snd(o) + 2))) = True
+            | (fst(d) == (fst(o) - 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1))) = True
+            | (fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) - 2)) || (snd(d) == (snd(o) + 2))) = True
+            | (fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1))) = True
+            | otherwise                                                                          = False 
+        isValidMove b (Queen _) o d
+            | (fst(d) == fst(o)) = True
+            | (snd(d) == snd(o)) = True
+            | (fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
+            | (fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
+            | otherwise = False
+        isValidMove b (Pawn _) o d
+            | (snd(d) == (snd(o) + 1)) && (fst(d) == fst(o)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) = True
+            | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) = True
+            | ((snd(d) == (snd(o) + 2)) && (fst(d) == fst(o))) && ((snd(o) == 2) || (snd(o) == 7)) = True
+            | otherwise = False
 
         -----------------------------
 
 
-
-
-
         -- Check if the move is possible based on check conditions
-    
-
+        isCheckMove :: Board -> Piece -> (Int, Int) -> (Int, Int) -> Bool
+        isCheckMove b (King True) o d  
+            | ((fst(d) == fst(o)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((snd(d) == snd(o)) && ((fst(d) == (fst(o) + 1)) || (fst(d) == (fst(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | otherwise             = False
+        isCheckMove b (King False) o d  
+            | ((fst(d) == fst(o)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((snd(d) == snd(o)) && ((fst(d) == (fst(o) + 1)) || (fst(d) == (fst(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | otherwise             = False
+        isCheckMove b (Rook True) o d
+            | (fst(d) == fst(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | (snd(d) == snd(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | otherwise          = False
+        isCheckMove b (Rook False) o d
+            | (fst(d) == fst(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | (snd(d) == snd(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | otherwise          = False
+        isCheckMove b (Bishop True) o d
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | otherwise          = False
+        isCheckMove b (Bishop False) o d
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | otherwise          = False
+        isCheckMove b (Knight True) o d
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) - 2)) || (snd(d) == (snd(o) + 2)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) - 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) - 2)) || (snd(d) == (snd(o) + 2)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | otherwise          = False 
+        isCheckMove b (Knight False) o d
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) - 2)) || (snd(d) == (snd(o) + 2)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) - 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) - 2)) || (snd(d) == (snd(o) + 2)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | otherwise          = False 
+        isCheckMove b (Queen True) o d
+            | (fst(d) == fst(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | (snd(d) == snd(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | otherwise = False
+        isCheckMove b (Queen False) o d
+            | (fst(d) == fst(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | (snd(d) == snd(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | otherwise = False
+        isCheckMove b (Pawn True) o d
+            | ((snd(d) == (snd(o) + 1)) && (fst(d) == fst(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | (((snd(d) == (snd(o) + 2)) && (fst(d) == fst(o))) && ((snd(o) == 2) || (snd(o) == 7))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | otherwise = False
+        isCheckMove b (Pawn False) o d
+            | ((snd(d) == (snd(o) + 1)) && (fst(d) == fst(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | (((snd(d) == (snd(o) + 2)) && (fst(d) == fst(o))) && ((snd(o) == 2) || (snd(o) == 7))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | otherwise = False
+        isCheckMove b (Empty) o d = False
 
 
 
@@ -159,6 +245,30 @@ module Board where
         -- Given a board position, finds the piece in it
         findPiece :: Board -> (Char, Int) -> Piece
         findPiece b p = findPosition (searchLine b (snd p)) (translateLine (fst p))
+
+        -- Given a board, find the King position
+        findKing :: Board -> Bool -> Int -> (Int, Int)
+        findKing (x:xs) True n
+            | ((findKingTrueInLine x 1) == 0)   = findKing xs True (n+1)
+            | otherwise                     = ((findKingTrueInLine x 1), n)
+        findKing (x:xs) False n
+            | ((findKingFalseInLine x 1) == 0)   = findKing xs False (n+1)
+            | otherwise                     = ((findKingFalseInLine x 1), n)       
+
+
+        findKingTrueInLine :: Line -> Int -> Int
+        findKingTrueInLine [] n = 0
+        findKingTrueInLine x 9 = 0
+        findKingTrueInLine ((King True):xs) n = n
+        findKingTrueInLine (x:xs) n = findKingTrueInLine xs (n+1)
+
+        findKingFalseInLine :: Line -> Int -> Int
+        findKingFalseInLine [] n = 0
+        findKingFalseInLine x 9 = 0
+        findKingFalseInLine ((King False):xs) n = n
+        findKingFalseInLine (x:xs) n = findKingFalseInLine xs (n+1)
+
+
 
     ----------- Swap Piece
 
@@ -199,5 +309,19 @@ module Board where
                 'g' -> 7
                 'h' -> 8
                 _   -> 0 
+
+        -- Translate back lines notation
+        translateLineBack :: Int -> Char
+        translateLineBack c =
+            case c of
+                1 -> 'a'
+                2 -> 'b'
+                3 -> 'c'
+                4 -> 'd'
+                5 -> 'e'
+                6 -> 'f'
+                7 -> 'g'
+                8 -> 'h'
+                _ -> 'z'
 
 

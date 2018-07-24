@@ -152,11 +152,17 @@ module Board where
             | (fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
             | (fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
             | otherwise = False
-        isValidMove b (Pawn _) o d
+        isValidMove b (Pawn True) o d
             | (snd(d) == (snd(o) + 1)) && (fst(d) == fst(o)) = True
             | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) = True
             | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) = True
             | ((snd(d) == (snd(o) + 2)) && (fst(d) == fst(o))) && ((snd(o) == 2) || (snd(o) == 7)) = True
+            | otherwise = False
+        isValidMove b (Pawn False) o d
+            | (snd(d) == (snd(o) - 1)) && (fst(d) == fst(o)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) = True
+            | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) = True
+            | ((snd(d) == (snd(o) - 2)) && (fst(d) == fst(o))) && ((snd(o) == 2) || (snd(o) == 7)) = True
             | otherwise = False
 
         -----------------------------
@@ -223,10 +229,10 @@ module Board where
             | (((snd(d) == (snd(o) + 2)) && (fst(d) == fst(o))) && ((snd(o) == 2) || (snd(o) == 7))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
             | otherwise = False
         isCheckMove b (Pawn False) o d
-            | ((snd(d) == (snd(o) + 1)) && (fst(d) == fst(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
-            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
-            | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
-            | (((snd(d) == (snd(o) + 2)) && (fst(d) == fst(o))) && ((snd(o) == 2) || (snd(o) == 7))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((snd(d) == (snd(o) - 1)) && (fst(d) == fst(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | ((fst(d) == (fst(o) + 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1))) && (findPiece b (translateLineBack(fst(d)),snd(d)) /= Empty)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
+            | (((snd(d) == (snd(o) - 2)) && (fst(d) == fst(o))) && ((snd(o) == 2) || (snd(o) == 7))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
             | otherwise = False
         isCheckMove b (Empty) o d = False
 

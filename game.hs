@@ -13,7 +13,10 @@ game b = if (isKingInCheckMate b True)
             then blackWin
             else if (isKingInCheckMate b False)
                     then whiteWin
-                    else nextWhiteMove b
+                    else do 
+                        nextWhiteMove b
+                        nextBlackMove b
+                        game b
 
 blackWin :: IO ()
 blackWin = putStrLn "Xeque Mate! O jogador preto ganhou!"
@@ -24,25 +27,39 @@ whiteWin = putStrLn "Xeque Mate! O jogador branco ganhou!"
 nextWhiteMove :: Board -> IO ()
 nextWhiteMove b = do 
     putStrLn "Jogador branco, é sua vez"
-    move <- getMove b
+    move <- getMove b True
     return ()
 
-getMove :: Board -> IO String
-getMove b = do
+nextBlackMove :: Board -> IO ()
+nextBlackMove b = do
+    putStrLn "Jogador preto, é a sua vez"
+    move <- getMove b False
+    return ()
+
+getMove :: Board -> Bool -> IO String
+getMove b c = do
     putStrLn "\tInsira sua jogada e tecle enter"
     move <- getLine
-    makeMove b (convertMove board move)
+    makeMove b c (convertMove board move)
     return ""
 
 convertMove :: Board -> String -> ((Char, Int),(Char,Int))
 convertMove board (a:b:c:d:e:f) = ((a,(digitToInt b)),(d,(digitToInt e)))
 
-makeMove :: Board -> ((Char, Int),(Char,Int)) -> IO ()
-makeMove b ((oc,ol),(dc,dl)) = do 
+makeMove :: Board -> Bool -> ((Char, Int),(Char,Int)) -> IO ()
+makeMove b c ((oc,ol),(dc,dl)) = do 
     let piece = (findPiece b (oc,ol))
-    if ((piece == (King True)) || (piece == (Queen True)) || (piece == (Bishop True)) || (piece == (Knight True)) || (piece == (Rook True)) || (piece == (Pawn True))) 
+    if ((piece == (King c)) || (piece == (Queen c)) || (piece == (Bishop c)) || (piece == (Knight c)) || (piece == (Rook c)) || (piece == (Pawn c))) 
         && (isValidMove b piece (translateLine(oc),ol) (translateLine(dc),dl))
+        && ((findPiece b (dc,dl) /= (King c)) && (findPiece b (dc,dl) /= (Queen c)) && (findPiece b (dc,dl) /= (Bishop c)) && (findPiece b (dc,dl) /= (Knight c)) && (findPiece b (dc,dl) /= (Rook c)) && (findPiece b (dc,dl) /= (Pawn c)))
         then do
-            putStr (printBoard 8 (movePiece b ((oc,ol),(dc,dl))))
-        else print (oc,ol)
+            putStrLn (printBoard 8 (movePiece b ((oc,ol),(dc,dl))))
+            if (isKingInCheck b False 1 1)
+                then putStrLn "Xeque!"
+                else putStrLn ""
+        else do
+            putStrLn "\nMovimento Inválido, tente novamente\n"
+            if c
+                then nextWhiteMove b
+                else nextBlackMove b 
     return ()

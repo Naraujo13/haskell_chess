@@ -51,14 +51,14 @@ module Board where
         -- Prints given board
         printBoard :: Int -> Board -> String 
         printBoard n [] = ""
-        printBoard 1 (x:xs) = (show 1) ++ printBoardLine(x) ++ (show 1) ++ "\n    a      b      c      d      e      f      g      h\n"
-        printBoard 8 (x:xs) = "    a      b      c      d      e      f      g      h\n" ++ (show 8) ++ printBoardLine(x) ++ (show 8) ++ "\n"  ++ (printBoard (8-1) xs)
+        printBoard 1 (x:xs) = (show 1) ++ printBoardLine(x) ++ (show 1) ++ "\n    a   b   c   d   e   f   g   h\n"
+        printBoard 8 (x:xs) = "    a   b   c   d   e   f   g   h\n" ++ (show 8) ++ printBoardLine(x) ++ (show 8) ++ "\n"  ++ (printBoard (8-1) xs)
         printBoard n (x:xs) = (show n) ++ printBoardLine(x) ++ (show n) ++ "\n"  ++ (printBoard (n-1) xs)
 
         -- Prints a board line
         printBoardLine :: [Piece] -> String
-        printBoardLine [] = ""
-        printBoardLine (x:xs) = " | " ++ [getPieceChar x] ++ " | " ++ (printBoardLine xs) 
+        printBoardLine [] = " | "
+        printBoardLine (x:xs) = " | " ++ [getPieceChar x] ++ (printBoardLine xs) 
 
         -- Gets unicode char for a given piece
         getPieceChar :: Piece -> Char
@@ -167,6 +167,32 @@ module Board where
 
         -----------------------------
 
+        isDiagonal :: (Int, Int) -> (Int, Int) -> Bool
+        isDiagonal desired p = (upLeft desired p) || (upRight desired p) || (downRight desired p) || (downLeft desired p)
+
+
+        upLeft :: (Int, Int) -> (Int, Int) -> Bool
+        upLeft o p
+            | (fst(p) < 1 || snd(p) > 8) = False
+            | (o == p)                  = True
+            | otherwise                 = upLeft o (((fst p) - 1), ((snd p) + 1))
+        upRight :: (Int, Int) -> (Int, Int) -> Bool
+        upRight o p
+            | (fst(p) > 8 || snd(p) > 8) = False
+            | (o == p)                  = True
+            | otherwise                 = upRight o (((fst p) + 1), ((snd p) + 1))
+        downRight :: (Int, Int) -> (Int, Int) -> Bool
+        downRight o p
+            | (fst(p) > 8 || snd(p) < 1) = False
+            | (o == p)                  = True
+            | otherwise                 = downRight o (((fst p) + 1), ((snd p) - 1))
+        downLeft :: (Int, Int) -> (Int, Int) -> Bool  
+        downLeft o p      
+            | (fst(p) < 1 || snd(p) < 1) = False
+            | (o == p)                  = True
+            | otherwise                 = downLeft o (((fst p) - 1), ((snd p) - 1))
+
+
 
         -- Check if the move is possible based on check conditions
         isCheckMove :: Board -> Piece -> (Int, Int) -> (Int, Int) -> Bool
@@ -189,15 +215,14 @@ module Board where
         isCheckMove b (Rook False) o d
             | (fst(d) == fst(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
             | (snd(d) == snd(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
-            | otherwise          = False
+            | otherwise                                                                             = False
         isCheckMove b (Bishop True) o d
             | (fst(d) < fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
             | (fst(d) < fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
             | otherwise          = False
         isCheckMove b (Bishop False) o d
-            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
-            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
-            | otherwise          = False
+            | (isDiagonal d o) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True))   = True
+            | otherwise                                                                             = False
         isCheckMove b (Knight True) o d
             | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) - 2)) || (snd(d) == (snd(o) + 2)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
             | ((fst(d) == (fst(o) - 2)) && ((snd(d) == (snd(o) - 1)) || (snd(d) == (snd(o) + 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True

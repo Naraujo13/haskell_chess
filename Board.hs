@@ -137,8 +137,8 @@ module Board where
             | (snd(d) == snd(o)) = True
             | otherwise          = False
         isValidMove b (Bishop _) o d
-            | (fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
-            | (fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
+            | (fst(d) < fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) = True
+            | (fst(d) > fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) = True
             | otherwise          = False
         isValidMove b (Knight _) o d
             | (fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) - 2)) || (snd(d) == (snd(o) + 2))) = True
@@ -149,8 +149,8 @@ module Board where
         isValidMove b (Queen _) o d
             | (fst(d) == fst(o)) = True
             | (snd(d) == snd(o)) = True
-            | (fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
-            | (fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1))) = True
+            | (fst(d) < fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) = True
+            | (fst(d) > fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) = True
             | otherwise = False
         isValidMove b (Pawn True) o d
             | (snd(d) == (snd(o) + 1)) && (fst(d) == fst(o)) = True
@@ -191,8 +191,8 @@ module Board where
             | (snd(d) == snd(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
             | otherwise          = False
         isCheckMove b (Bishop True) o d
-            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
-            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | (fst(d) < fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | (fst(d) < fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
             | otherwise          = False
         isCheckMove b (Bishop False) o d
             | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True
@@ -213,8 +213,8 @@ module Board where
         isCheckMove b (Queen True) o d
             | (fst(d) == fst(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
             | (snd(d) == snd(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
-            | ((fst(d) == (fst(o) - 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
-            | ((fst(d) == (fst(o) + 1)) && ((snd(d) == (snd(o) + 1)) || (snd(d) == (snd(o) - 1)))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | (fst(d) < fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
+            | (fst(d) < fst(o)) && ((snd(d) > snd(o) ) || (snd(d) < snd(o))) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King False)) = True
             | otherwise = False
         isCheckMove b (Queen False) o d
             | (fst(d) == fst(o)) && (findPiece b (translateLineBack(fst(d)),snd(d)) == (King True)) = True

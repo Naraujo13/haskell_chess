@@ -49,9 +49,11 @@ module Board where
     ----------- Draw
 
         -- Prints given board
-        printBoard :: Board -> String
-        printBoard [] = ""
-        printBoard (x:xs) = printBoardLine(x) ++ "\n" ++ (printBoard xs)
+        printBoard :: Int -> Board -> String 
+        printBoard n [] = ""
+        printBoard 1 (x:xs) = (show 1) ++ printBoardLine(x) ++ (show 1) ++ "\n    a      b      c      d      e      f      g      h\n"
+        printBoard 8 (x:xs) = "    a      b      c      d      e      f      g      h\n" ++ (show 8) ++ printBoardLine(x) ++ (show 8) ++ "\n"  ++ (printBoard (8-1) xs)
+        printBoard n (x:xs) = (show n) ++ printBoardLine(x) ++ (show n) ++ "\n"  ++ (printBoard (n-1) xs)
 
         -- Prints a board line
         printBoardLine :: [Piece] -> String

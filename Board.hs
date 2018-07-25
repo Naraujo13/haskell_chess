@@ -45,6 +45,19 @@ module Board where
                 [ (Pawn True), (Pawn True),   (Pawn True),   (Pawn True),   (Pawn True),    (Pawn True), (Pawn True),   (Pawn True)     ],
                 [ (Rook True), (Knight True), (Bishop True), (Queen True), (King True),     (Bishop True), (Knight True), (Rook True)   ]
             ]
+
+        checkBoard :: Board
+        checkBoard = 
+            [
+                [ (Rook False), (Knight False), (Bishop False), (Queen False),  (King False), (Bishop False), (Knight False), (Rook False) ],
+                [ (Pawn False), (Pawn False),   (Pawn False),   (Pawn False),   (Pawn False), (Pawn False), (Pawn False),   (Pawn False) ],
+                [ Empty,        Empty,        Empty,         Empty,         Empty,          Empty,         Empty,            Empty      ],
+                [ Empty,        Empty,        Empty,         Empty,         Empty,          Empty,         Empty,            Empty      ],
+                [ Empty,        Empty,        Empty,         Empty,         (Queen False),          Empty,         Empty,            Empty      ],
+                [ Empty,        Empty,        Empty,         Empty,         Empty,          Empty,         Empty,            Empty      ],
+                [ (Pawn True), (Pawn True),   (Pawn True),   (Pawn True),   (King True),    (Pawn True), (Pawn True),   (Pawn True)     ],
+                [ (Rook True), (Knight True), (Bishop True), (Queen True), Empty,     (Bishop True), (Knight True), (Rook True)   ]
+            ]
     
     ----------- Draw
 
@@ -265,7 +278,7 @@ module Board where
         isKingInCheck b c 9 9 = False
         isKingInCheck b c x 9 = isKingInCheck b c (x+1) 1
         isKingInCheck b c x y
-            | isCheckMove b (findPiece b ((translateLineBack x),y)) (x,y) (findKing b c 1) = True
+            | isCheckMove b (findPiece b ((translateLineBack x),y)) (x,y) (findKing b c 8) = True
             | otherwise = isKingInCheck b c x (y+1)
 
 
@@ -292,27 +305,21 @@ module Board where
         findPiece :: Board -> (Char, Int) -> Piece
         findPiece b p = findPosition (searchLine b (snd p)) (translateLine (fst p))
 
-        -- Given a board, find the King position
+        -- Given a board, find the King position   
+
         findKing :: Board -> Bool -> Int -> (Int, Int)
-        findKing (x:xs) True n
-            | ((findKingTrueInLine x 1) == 0)   = findKing xs True (n+1)
-            | otherwise                     = ((findKingTrueInLine x 1), n)
-        findKing (x:xs) False n
-            | ((findKingFalseInLine x 1) == 0)   = findKing xs False (n+1)
-            | otherwise                     = ((findKingFalseInLine x 1), n)       
+        findKing (x:xs) c l
+            | (findKingInLine x c 1) /= 0 = ((findKingInLine x c 1), l)
+            | otherwise                   = findKing xs c (l-1)
 
 
-        findKingTrueInLine :: Line -> Int -> Int
-        findKingTrueInLine [] n = 0
-        findKingTrueInLine x 9 = 0
-        findKingTrueInLine ((King True):xs) n = n
-        findKingTrueInLine (x:xs) n = findKingTrueInLine xs (n+1)
-
-        findKingFalseInLine :: Line -> Int -> Int
-        findKingFalseInLine [] n = 0
-        findKingFalseInLine x 9 = 0
-        findKingFalseInLine ((King False):xs) n = n
-        findKingFalseInLine (x:xs) n = findKingFalseInLine xs (n+1)
+        findKingInLine :: Line -> Bool -> Int -> Int
+        findKingInLine l b 9 = 0
+        findKingInLine [] b n  = 0
+        findKingInLine (x:xs) b n 
+            | ((King b) == x) = n
+            | otherwise = findKingInLine xs b (n+1)
+        findKingInLine (x:xs) b n = findKingInLine xs b (n+1)
 
 
 

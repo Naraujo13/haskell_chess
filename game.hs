@@ -55,7 +55,7 @@ makeMove b c ((oc,ol),(dc,dl)) = do
         then do
             let newBoard = (movePiece b ((oc,ol),(dc,dl)))
             putStrLn (printBoard 8 newBoard)
-            if (isKingInCheck b False 1 1)
+            if (isKingInCheck b c 1 1)
                 then do
                     putStrLn "Xeque!"
                     return newBoard
